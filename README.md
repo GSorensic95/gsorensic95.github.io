@@ -6,26 +6,29 @@
   <title>RRPS Student Password Checker</title>
   <link rel="shortcut icon" href="https://aadcdn.msauth.net/shared/1.0/content/images/favicon_a_eupayfgghqiai7k9sol6lg2.ico" />
   <style>
-    body {
+    * {
+      box-sizing: border-box;
       margin: 0;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
-      background-image: url('https://cmsv2-assets.apptegy.net/uploads/5968/file/1201345/px1280_632d44df-b671-46f8-9d39-bde94ffd677d.png');
+      height: 100vh; /* fixed viewport for Chromebooks */
+      background: url("https://cmsv2-assets.apptegy.net/uploads/5968/file/1201345/px1280_632d44df-b671-46f8-9d39-bde94ffd677d.png") 
+                  no-repeat center center;
       background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
       position: relative;
     }
 
     body::before {
       content: "";
       position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.4); /* dark overlay */
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4); /* overlay */
       z-index: 0;
     }
 
@@ -33,54 +36,52 @@
       position: relative;
       z-index: 1;
       background: #fff;
-      width: 420px;
-      padding: 40px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      width: 420px; /* fixed Chromebook width */
+      padding: 35px;
+      border-radius: 10px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
     }
 
     .logo {
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
     .logo img {
-      height: 28px;
+      height: 26px;
     }
 
     .logo span {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: bold;
       color: #000;
     }
 
     h2 {
-      font-size: 24px;
-      font-weight: 400;
-      margin-bottom: 20px;
+      font-size: 21px;
+      margin-bottom: 18px;
       color: #000;
+      font-weight: 500;
     }
 
     .input-group {
-      width: 100%;
-      margin-bottom: 15px;
+      margin-bottom: 18px;
     }
 
     .input-group div {
       position: relative;
-      width: 100%;
     }
 
     .input-group input {
       width: 100%;
-      padding: 12px 45px 12px 10px;
+      padding: 12px 50px 12px 12px;
       border: none;
       border-bottom: 2px solid #666;
       font-size: 16px;
       outline: none;
-      box-sizing: border-box;
+      background: transparent;
     }
 
     .input-group input:focus {
@@ -89,21 +90,20 @@
 
     .show-password {
       position: absolute;
-      right: 12px;
+      right: 10px;
       top: 50%;
       transform: translateY(-50%);
       font-size: 13px;
       font-weight: 600;
       color: #0067b8;
       cursor: pointer;
-      user-select: none;
     }
 
     .progress-bar {
       width: 100%;
-      height: 12px;
-      background: #ddd;
-      border-radius: 6px;
+      height: 10px;
+      background: #e0e0e0;
+      border-radius: 5px;
       overflow: hidden;
       margin-top: 8px;
     }
@@ -112,15 +112,14 @@
       height: 100%;
       width: 0;
       background: red;
-      border-radius: 6px;
-      transition: width 0.3s ease, background 0.3s ease;
+      transition: width 0.25s ease, background 0.25s ease;
     }
 
     .char-count {
-      font-size: 14px;
-      margin-top: 6px;
+      font-size: 13px;
+      margin-top: 5px;
       text-align: center;
-      color: #555;
+      color: #444;
     }
 
     .buttons {
@@ -130,9 +129,9 @@
     }
 
     .btn {
-      padding: 10px 20px;
+      padding: 9px 18px;
       border: none;
-      font-size: 15px;
+      font-size: 14px;
       cursor: pointer;
       border-radius: 6px;
     }
@@ -146,6 +145,9 @@
       background: #0067b8;
       color: #fff;
     }
+
+    .btn.back:hover { background: #d6d6d6; }
+    .btn.next:hover { background: #005499; }
   </style>
 </head>
 <body>
@@ -185,15 +187,10 @@
 
       progressFill.style.width = percentage + "%";
 
-      if (length < 5) {
-        progressFill.style.background = "red";
-      } else if (length < 10) {
-        progressFill.style.background = "orange";
-      } else if (length < 15) {
-        progressFill.style.background = "gold";
-      } else {
-        progressFill.style.background = "green";
-      }
+      if (length < 5) progressFill.style.background = "red";
+      else if (length < 10) progressFill.style.background = "orange";
+      else if (length < 15) progressFill.style.background = "gold";
+      else progressFill.style.background = "green";
 
       charCount.textContent = `${length} / 15 characters`;
     });
