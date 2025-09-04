@@ -1,0 +1,78 @@
+name: Build CySA+ Study Guide PDF
+
+on:
+  pull_request:
+    paths:
+      - 'study-guides/cysa-plus-study-guide.md'
+      - '.github/workflows/build-cysa-plus-pdf.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'study-guides/cysa-plus-study-guide.md'
+      - '.github/workflows/build-cysa-plus-pdf.yml'
+
+jobs:
+  build-pdf:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+    
+    - name: Setup Pandoc
+      uses: r-lib/actions/setup-pandoc@v2
+      with:
+        pandoc-version: 'latest'
+    
+    - name: Install additional dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
+    
+    - name: Convert Markdown to PDF
+      run: |
+        mkdir -p output
+        pandoc study-guides/cysa-plus-study-guide.md \
+          -o output/cysa-plus-study-guide.pdf \
+          --pdf-engine=pdflatex \
+          --variable geometry:margin=1in \
+          --variable fontsize=11pt \
+          --variable documentclass=article \
+          --table-of-contents \
+          --number-sections
+    
+    - name: Upload PDF as artifact (for pull requests)
+      if: github.event_name == 'pull_request'
+      uses: actions/upload-artifact@v4
+      with:
+        name: cysa-plus-study-guide-pdf
+        path: output/cysa-plus-study-guide.pdf
+        retention-days: 30
+    
+    - name: Commit and push PDF (for main branch)
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        # Configure git
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        # Create pdfs directory if it doesn't exist
+        mkdir -p pdfs
+        
+        # Copy the generated PDF to the pdfs directory
+        cp output/cysa-plus-study-guide.pdf pdfs/cysa-plus-study-guide.pdf
+        
+        # Add and commit the PDF file
+        git add pdfs/cysa-plus-study-guide.pdf
+        
+        # Check if there are changes to commit
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "Update CySA+ Study Guide PDF [automated]"
+          git push
+        fi
